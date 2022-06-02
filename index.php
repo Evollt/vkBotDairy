@@ -1,11 +1,12 @@
 <?php
 header("HTTP/1.1 200 OK");
 require 'libs/simplevk-master/autoload.php';
+require 'controllers/MainController.php';
 
 use DigitalStar\vk_api\VK_api as vk_api; // Основной класс
 use DigitalStar\vk_api\Execute;
 
-const VK_KEY = "ТОКЕН";  // Токен сообщества
+const VK_KEY = "20f20fe68f96c9656990146b17e44463aa5e0a25fbf4a830dc91457934faed85068aaa56b5df0df7e9e0e";  // Токен сообщества
 const ACCESS_KEY = "КОД";  // Тот самый ключ из сообщества 
 const VERSION = "5.126"; // Версия API VK
 
@@ -22,6 +23,8 @@ $btn_4 = $vk->buttonText('Главная', 'blue', ['command' => 'btn_4']);
 $vk->initVars($peer_id, $message, $payload, $vk_id, $type, $data);
 $vk = new Execute($vk);
 
+$botWork = new botExtension();
+
 // Создает проверку на новое сообщение
 if ($data->type == 'message_new' or $data->type == 'message_edit') {
     if (mb_strtolower($message) == '110 главная' || $message == 'Начать') {
@@ -29,17 +32,14 @@ if ($data->type == 'message_new' or $data->type == 'message_edit') {
     } else if (mb_strtolower($message) == 'салам, бот' || mb_strtolower($message) == 'салам бот') {
         $vk->reply('Шалом');
     } else if (mb_strtolower($message) == 'расписание' || mb_strtolower($message) == 'расписание ебаное') {
-        require 'parser.php';
-
         // получаем день
-        $dairy = new Parser();
-        $tags = $dairy->getDairy();
+        $tags = $botWork->getDairy();
 
-        $firstText = $tags['text'][$dairy->firstText];
-        $secondText = $tags['text'][$dairy->secondText];
+        $firstText = $tags['text'][$botWork->firstText];
+        $secondText = $tags['text'][$botWork->secondText];
 
-        $firstHref = $tags['href'][$dairy->firstHref];
-        $secondHref = $tags['href'][$dairy->secondHref];
+        $firstHref = $tags['href'][$botWork->firstHref];
+        $secondHref = $tags['href'][$botWork->secondHref];
 
         if($secondText < $firstText) {
             $vk->reply("Расписание на $secondText: " . $secondHref);
@@ -49,30 +49,23 @@ if ($data->type == 'message_new' or $data->type == 'message_edit') {
             $vk->reply("Расписание на $secondText: " . $secondHref);
         }
     } else if (mb_strtolower($message) == 'команды') {
-        $vk->reply("Мои команды:\n
-            \t 1. Расписание
-            \t 2. Ссылки
-            \t 3. Книги
-            \t 4. Ответы
-            \t 5. Почты
-            \t 6. Обед
-        ");
+        $vk->reply($botWork->commands());
     } else if (mb_strtolower($message) == 'ссылки') {
-        require 'parser.php';
 
-        $pars_link = new Parser();
-        $link = $pars_link->getLinks();
+        $link = $botWork->getLinks();
 
         $vk->reply("Постоянные ссылки преподавателей для дистанционного обучения:\n $link");
     } else if (mb_strtolower($message) == 'книги') {
-        $files = scandir('./books');
+
+        $files = $botWork->getAllFilesFromDirectory('./books');
+
         foreach ($files as $file) {
             if ($file != '.' and $file != '..') {
                 $vk->sendDocMessage($peer_id, "./books/${file}");
             }
         }
     } else if (mb_strtolower($message) == 'ответы') {
-        $files = scandir('./answers');
+        $files = $botWork->getAllFilesFromDirectory('./answers');
         foreach ($files as $file) {
             if ($file != '.' and $file != '..') {
                 $vk->sendDocMessage($peer_id, "./answers/${file}");
@@ -81,26 +74,13 @@ if ($data->type == 'message_new' or $data->type == 'message_edit') {
         $vk->reply("Ответы Голицинский: https://otvetkin.info/reshebniki/5-klass/angliyskiy-yazyk/golicynskij-7");
         $vk->reply("Решебник Абрамяна: https://uteacher.ru/reshebnik-abramyan/");
     } else if (mb_strtolower($message) == 'почты') {
-        $file = fopen("files/mails.txt", "r");
-        $mails = [];
+        $mails = $botWork->getStringFromFiles('files/mails.txt');
 
-        while (!feof($file)) {
-            $mails[] = fgets($file);
-        }
-        fclose($file);
-
-        $mails = implode('', $mails);
         $vk->reply($mails);
     } else if (mb_strtolower($message) == 'обед') {
         $vk->sendImage($peer_id, 'files/Screenshot_3.png');
     } else if (mb_strtolower($message) == 'бот, скинь аниме' || mb_strtolower($message) == 'бот скинь аниме') {
-        $file = fopen("files/anime.txt", "r");
-        $animes = [];
-
-        while (!feof($file)) {
-            $animes[] = fgets($file);
-        }
-        fclose($file);
+        $animes = $botWork->getStringFromFiles('files/anime.txt');
 
         $vk->reply($animes[mt_rand(1, count($animes))]);
     }

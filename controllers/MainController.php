@@ -2,16 +2,14 @@
 // импорт парсера
 require 'libs/phpQuery/phpQuery-onefile.php';
 
-class Parser
-{
+class botExtension {
     public $firstText = 0;
     public $secondText = 1;
 
     public $firstHref = 8;
     public $secondHref = 18;
 
-    public function getDairy()
-    {
+    public function getDairy() {
         // получает контент со страницы
         $str = file_get_contents('https://www.mgkit.ru/studentu/raspisanie-zanatij');
         $pq = phpQuery::newDocument($str);
@@ -73,5 +71,38 @@ class Parser
         }
 
         return $link;
+    }
+
+    public function commands() {
+        return "Мои команды:\n
+            \t 1. Расписание
+            \t 2. Ссылки
+            \t 3. Книги
+            \t 4. Ответы
+            \t 5. Почты
+            \t 6. Обед
+        ";
+    }
+
+    public function getAllFilesFromDirectory($dir) {
+        $files = scandir($dir);
+        
+        return $files;
+    }
+
+    public function getStringFromFiles($filename) {
+        $file = fopen($filename, "r");
+        $files = [];
+
+        while (!feof($file)) {
+            $files[] = fgets($file);
+        }
+        fclose($file);
+
+        if($filename != 'files/anime.txt') {
+            $files = implode('', $files);
+        }
+
+        return $files;
     }
 }
