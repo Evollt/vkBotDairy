@@ -6,7 +6,7 @@ require 'controllers/MainController.php';
 use DigitalStar\vk_api\VK_api as vk_api; // Основной класс
 use DigitalStar\vk_api\Execute;
 
-const VK_KEY = "20f20fe68f96c9656990146b17e44463aa5e0a25fbf4a830dc91457934faed85068aaa56b5df0df7e9e0e";  // Токен сообщества
+const VK_KEY = "ВАШ ТОКЕН";  // Токен сообщества
 const ACCESS_KEY = "КОД";  // Тот самый ключ из сообщества 
 const VERSION = "5.126"; // Версия API VK
 
