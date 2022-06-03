@@ -2,7 +2,7 @@
 // импорт парсера
 require 'libs/phpQuery/phpQuery-onefile.php';
 
-class botExtension {
+class MainController {
     public $firstText = 0;
     public $secondText = 1;
 
@@ -74,6 +74,7 @@ class botExtension {
     }
 
     public function commands() {
+        // возвращаем текст команды
         return "Мои команды:\n
             \t 1. Расписание
             \t 2. Ссылки
@@ -85,20 +86,25 @@ class botExtension {
     }
 
     public function getAllFilesFromDirectory($dir) {
+        // открываем директорию и добавляем в массив все имена файлов оттуда
         $files = scandir($dir);
         
         return $files;
     }
 
     public function getStringFromFiles($filename) {
+        // открываем файл для чтения
         $file = fopen($filename, "r");
         $files = [];
 
+        // проверка на то, чтобы не был конец файла
         while (!feof($file)) {
+            // пока не достигнут конец файла мы читаем строчку)
             $files[] = fgets($file);
         }
         fclose($file);
 
+        // это конкотенация всех элементов в массиве files, но дело в том, что я не хочу, чтобы массив anime конкотенировался(это еще один вызов этого метода)
         if($filename != 'files/anime.txt') {
             $files = implode('', $files);
         }
